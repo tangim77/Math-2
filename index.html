@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>দ্রুত গণনা চ্যালেঞ্জ</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .question {
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+
+        input {
+            font-size: 18px;
+            padding: 5px;
+            text-align: center;
+        }
+
+        button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            font-size: 18px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .timer {
+            margin-top: 10px;
+            font-size: 18px;
+            color: red;
+        }
+
+        .score {
+            font-size: 18px;
+            margin-top: 10px;
+        }
+
+        .top-scores {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="question" id="question">অংক লোড হচ্ছে...</div>
+        <input type="number" id="answer" placeholder="উত্তর দিন">
+        <button onclick="checkAnswer()">যাচাই করুন</button>
+        <div class="timer">সময়: <span id="time">30</span> সেকেন্ড</div>
+        <div class="score">স্কোর: <span id="score">0</span></div>
+        <div class="top-scores">শ্রেষ্ঠ স্কোর: <span id="topScores">-</span></div>
+    </div>
+
+    <script>
+        let num1, num2, correctAnswer, timeLeft = 30, score = 0;
+        let difficulty = 1;
+        let timer;
+        let topScores = JSON.parse(localStorage.getItem("topScores")) || [];
+
+        function generateQuestion() {
+            num1 = Math.floor(Math.random() * (10 * difficulty)) + 1;
+            num2 = Math.floor(Math.random() * (10 * difficulty)) + 1;
+            correctAnswer = num1 + num2;
+            document.getElementById("question").textContent = `${num1} + ${num2} = ?`;
+        }
+
+        function checkAnswer() {
+            let userAnswer = parseInt(document.getElementById("answer").value);
+            if (userAnswer === correctAnswer) {
+                score++;
+                if (score % 5 === 0) difficulty++; 
+                document.getElementById("score").textContent = score;
+                generateQuestion();
+                document.getElementById("answer").value = "";
+            }
+        }
+
+        function startTimer() {
+            timer = setInterval(() => {
+                timeLeft--;
+                document.getElementById("time").textContent = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    updateTopScores(score);
+                    alert("সময় শেষ! আপনার চূড়ান্ত স্কোর: " + score);
+                }
+            }, 1000);
+        }
+
+        function updateTopScores(newScore) {
+            topScores.push(newScore);
+            topScores.sort((a, b) => b - a);
+            topScores = topScores.slice(0, 3);
+            localStorage.setItem("topScores", JSON.stringify(topScores));
+            document.getElementById("topScores").textContent = topScores.join(", ");
+            location.reload();
+        }
+
+        function loadTopScores() {
+            document.getElementById("topScores").textContent = topScores.length > 0 ? topScores.join(", ") : "-";
+
+        }
+
+        generateQuestion();
+        startTimer();
+        loadTopScores();
+
+    </script>
+</body>
+</html>
